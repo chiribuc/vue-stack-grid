@@ -1,0 +1,49 @@
+{
+  "name": "@crob/vue-stack-grid",
+  "version": "1.0.0",
+  "description": "A simple, efficient Vue 3 component for creating stacked grid layouts. It automatically adjusts items into a grid based on available space, with customizable column widths and gutters for precise layout control. Ideal for fluid, responsive designs.",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/vue-stack-grid.umd.js",
+  "module": "dist/vue-stack-grid.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-stack-grid.esm.js",
+      "require": "./dist/vue-stack-grid.umd.js"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest"
+  },
+  "keywords": [
+    "vue3",
+    "stack",
+    "grid"
+  ],
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.24.3",
+    "@babel/preset-env": "^7.24.4",
+    "@rollup/plugin-commonjs": "^21.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@vue/test-utils": "^2.4.5",
+    "@vue/vue3-jest": "^29.2.6",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "rollup": "^2.0.0",
+    "rollup-plugin-css-only": "^4.5.2",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-vue": "^6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiribuc/vue-stack-grid.git"
+  },
+  "author": "Robert-Cristian Chiribuc",
+  "license": "MIT"
+}
