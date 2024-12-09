@@ -1,6 +1,5 @@
 import commonjs from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import postcss from 'rollup-plugin-postcss'
 import vue from 'rollup-plugin-vue'
 
 export default {
@@ -9,6 +8,7 @@ export default {
     {
       file: 'dist/vue-stack-grid.esm.js',
       format: 'esm',
+      exports: 'named',
     },
     {
       file: 'dist/vue-stack-grid.umd.js',
@@ -17,16 +17,20 @@ export default {
       globals: {
         vue: 'Vue',
       },
+      exports: 'named',
     },
   ],
   plugins: [
-    vue(),
-    postcss({
-      extract: false,
-      minimize: true,
+    vue({
+      css: true,
+      template: {
+        isProduction: true,
+      },
+    }),
+    nodeResolve({
+      browser: true,
     }),
     commonjs(),
-    nodeResolve(),
   ],
   external: ['vue'],
 }
