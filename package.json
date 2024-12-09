@@ -1,10 +1,11 @@
 {
   "name": "@crob/vue-stack-grid",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple, efficient Vue 3 component for creating stacked grid layouts. It automatically adjusts items into a grid based on available space, with customizable column widths and gutters for precise layout control. Ideal for fluid, responsive designs.",
   "files": [
     "dist",
-    "types"
+    "types",
+    "README.md"
   ],
   "main": "dist/vue-stack-grid.umd.js",
   "module": "dist/vue-stack-grid.esm.js",
@@ -45,6 +46,14 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chiribuc/vue-stack-grid.git"
+  },
+  "homepage": "https://github.com/chiribuc/vue-stack-grid#readme",
+  "bugs": {
+    "url": "https://github.com/chiribuc/vue-stack-grid/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/chiribuc"
   },
   "author": "Robert-Cristian Chiribuc",
   "license": "MIT"
