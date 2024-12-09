@@ -1,13 +1,13 @@
 <template>
-  <div class="stack-grid-container" ref="container">
-    <div class="stack-item" v-for="(item, key) in items" :key="key">
+  <div ref="container" class="stack-grid-container">
+    <div v-for="(item, key) in items" :key="key" class="stack-item">
       <slot name="item" v-bind="{item, key}"/>
     </div>
   </div>
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps({
   items: Array,
@@ -76,31 +76,39 @@ function reflow () {
   }
 }
 
-function arrangeItems(children, cols, columnWidth) {
-  if (!children || !cols || !cols.length) return; // Add guard clause here
+function arrangeItems (children, cols, columnWidth) {
+  if (!children || !cols || !cols.length) return // Add guard clause here
 
   Array.from(children).forEach((child) => {
     const { index } = cols.reduce((acc, col, idx) => {
       if (acc.minHeight === null || col.h < acc.minHeight) {
-        return { index: idx, minHeight: col.h };
+        return { index: idx, minHeight: col.h }
       }
-      return acc;
-    }, { index: 0, minHeight: null });
+      return acc
+    }, { index: 0, minHeight: null })
 
-    if (index === undefined || index < 0 || index >= cols.length) return; // Additional check for index
+    if (index === undefined || index < 0 || index >= cols.length) return // Additional check for index
 
-    child.style.width = `${columnWidth}px`;
-    child.style.transform = `translate(${cols[index].x}px, ${cols[index].h}px)`;
-    cols[index].h += child.offsetHeight + props.gutterHeight;
-  });
+    child.style.width = `${columnWidth}px`
+    child.style.transform = `translate(${cols[index].x}px, ${cols[index].h}px)`
+    cols[index].h += child.offsetHeight + props.gutterHeight
+  })
 
-  updateContainerHeight(cols);
+  updateContainerHeight(cols)
 }
 
 function updateContainerHeight (cols) {
   const containerHeight = cols.reduce((max, col) => Math.max(max, col.h), 0)
   container.value.style.height = `${containerHeight}px`
 }
+
+watch(
+  () => props.items,
+  () => {
+    update()
+  },
+  { deep: true }
+)
 
 onMounted(() => {
   window.addEventListener('resize', reflow)
