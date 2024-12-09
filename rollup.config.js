@@ -1,5 +1,6 @@
 import commonjs from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
+import postcss from 'rollup-plugin-postcss'
 import vue from 'rollup-plugin-vue'
 
 export default {
@@ -22,10 +23,15 @@ export default {
   ],
   plugins: [
     vue({
-      css: true,
+      css: false,
       template: {
         isProduction: true,
       },
+    }),
+    postcss({
+      extract: false,
+      modules: false,
+      inject: true,
     }),
     nodeResolve({
       browser: true,
