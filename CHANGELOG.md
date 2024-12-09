@@ -1,3 +1,7 @@
+## 1.0.9 - 2024-12-09
+
+**Full Changelog**: https://github.com/chiribuc/vue-stack-grid/compare/1.0.8...1.0.9
+
 ## 1.0.8 - 2024-12-09
 
 **Full Changelog**: https://github.com/chiribuc/vue-stack-grid/compare/1.0.7...1.0.8
