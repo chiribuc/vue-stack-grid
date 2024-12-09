@@ -8,5 +8,6 @@ module.exports = {
     '^.+\\.vue$': '@vue/vue3-jest',
     '^.+\\.js$': 'babel-jest'
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/']
+  transformIgnorePatterns: ['<rootDir>/node_modules/'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs']
 };
