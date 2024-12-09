@@ -1,4 +1,4 @@
-import StackGrid from './components/StackGrid.vue'
+import StackGrid from "./components/StackGrid.vue";
 
-export { StackGrid }
-export default StackGrid
+export { StackGrid };
+export default StackGrid;
