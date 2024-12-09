@@ -1,55 +1,63 @@
 <template>
   <div ref="container" class="stack-grid-container">
     <div v-for="(item, key) in items" :key="key" class="stack-item">
-      <slot name="item" v-bind="{item, key}"/>
+      <slot name="item" v-bind="{ item, key }"/>
     </div>
   </div>
 </template>
 
-<script setup>
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+<script lang="ts" setup>
+import {nextTick, onMounted, onUnmounted, ref, watch} from 'vue'
+import type {Column, ReflowData, StackGridProps} from '@/types'
 
-const props = defineProps({
-  items: Array,
-  columnMinWidth: Number,
-  gutterWidth: {
-    type: Number,
-    default: 0
-  },
-  gutterHeight: {
-    type: Number,
-    default: 0
-  },
+const props = withDefaults(defineProps<StackGridProps>(), {
+  gutterWidth: 0,
+  gutterHeight: 0
 })
 
-defineExpose({ reflow })
-const emits = defineEmits(['updated:reflow'])
+const emits = defineEmits<{
+  (event: 'updated:reflow', data: ReflowData): void
+}>()
 
-const container = ref()
+defineExpose({reflow})
 
-function getContainerWidth () {
+const container = ref<HTMLDivElement>()
+
+function getContainerWidth(): number {
   return container.value?.clientWidth || 0
 }
 
-function calculateColumnCount (containerWidth, columnMinWidth, gutterWidth) {
+function calculateColumnCount(
+  containerWidth: number,
+  columnMinWidth: number,
+  gutterWidth: number
+): number {
   return Math.max(
     Math.floor((containerWidth + gutterWidth) / (columnMinWidth + gutterWidth)),
     1
   )
 }
 
-function calculateColumnWidth (containerWidth, columnCount, gutterWidth) {
+function calculateColumnWidth(
+  containerWidth: number,
+  columnCount: number,
+  gutterWidth: number
+): number {
   return (containerWidth - gutterWidth * (columnCount - 1)) / columnCount
 }
 
-function generateBaseColumns (columnCount, columnWidth, gutterWidth) {
-  return Array.from({ length: columnCount }, (_, i) => ({
+function generateBaseColumns(
+  columnCount: number,
+  columnWidth: number,
+  gutterWidth: number
+): Column[] {
+  return Array.from({length: columnCount}, (_, i) => ({
     x: i * (columnWidth + gutterWidth),
     h: 0
   }))
 }
 
-function updateColumnData () {
+function updateColumnData(): ReflowData {
   const containerWidth = getContainerWidth()
   const count = calculateColumnCount(containerWidth, props.columnMinWidth, props.gutterWidth)
   const width = calculateColumnWidth(containerWidth, count, props.gutterWidth)
@@ -61,43 +69,52 @@ function updateColumnData () {
   }
 }
 
-function update () {
+function update(): void {
   nextTick(reflow)
 }
 
-function reflow () {
-  const { containerWidth, columnCount, columnWidth } = updateColumnData()
+function reflow(): void {
+  const {containerWidth, columnCount, columnWidth} = updateColumnData()
   let cols = generateBaseColumns(columnCount, columnWidth, props.gutterWidth)
 
-  emits('updated:reflow', { containerWidth, columnCount, columnWidth })
+  emits('updated:reflow', {containerWidth, columnCount, columnWidth})
 
   if (container.value && container.value.children.length) {
     arrangeItems(container.value.children, cols, columnWidth)
   }
 }
 
-function arrangeItems (children, cols, columnWidth) {
-  if (!children || !cols || !cols.length) return // Add guard clause here
+function arrangeItems(
+  children: HTMLCollection,
+  cols: Column[],
+  columnWidth: number
+): void {
+  if (!children || !cols || !cols.length) return
 
   Array.from(children).forEach((child) => {
-    const { index } = cols.reduce((acc, col, idx) => {
-      if (acc.minHeight === null || col.h < acc.minHeight) {
-        return { index: idx, minHeight: col.h }
-      }
-      return acc
-    }, { index: 0, minHeight: null })
+    const {index} = cols.reduce<{ index: number; minHeight: number | null }>(
+      (acc, col, idx) => {
+        if (acc.minHeight === null || col.h < acc.minHeight) {
+          return {index: idx, minHeight: col.h}
+        }
+        return acc
+      },
+      {index: 0, minHeight: null}
+    )
 
-    if (index === undefined || index < 0 || index >= cols.length) return // Additional check for index
+    if (index === undefined || index < 0 || index >= cols.length) return
 
-    child.style.width = `${columnWidth}px`
-    child.style.transform = `translate(${cols[index].x}px, ${cols[index].h}px)`
-    cols[index].h += child.offsetHeight + props.gutterHeight
+    const element = child as HTMLElement
+    element.style.width = `${columnWidth}px`
+    element.style.transform = `translate(${cols[index].x}px, ${cols[index].h}px)`
+    cols[index].h += element.offsetHeight + props.gutterHeight
   })
 
   updateContainerHeight(cols)
 }
 
-function updateContainerHeight (cols) {
+function updateContainerHeight(cols: Column[]): void {
+  if (!container.value) return
   const containerHeight = cols.reduce((max, col) => Math.max(max, col.h), 0)
   container.value.style.height = `${containerHeight}px`
 }
@@ -107,7 +124,7 @@ watch(
   () => {
     update()
   },
-  { deep: true }
+  {deep: true}
 )
 
 onMounted(() => {
