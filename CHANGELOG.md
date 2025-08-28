@@ -1,4 +1,4 @@
-## Update vue-stack-grid.d.ts - 2025-08-28
+## 1.0.10 - 2025-08-28
 
 ### What's Changed
 
