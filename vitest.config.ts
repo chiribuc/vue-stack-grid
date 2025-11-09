@@ -4,12 +4,12 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   test: {
-    environment: 'jsdom',
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html']
-    },
-    include: ['tests/**/*.spec.ts'],
-    globals: true
-  }
+    environment: 'happy-dom',
+    include: ['tests/**/*.{spec,test}.{js,ts}'],
+    globals: true,
+    restoreMocks: true,
+    clearMocks: true,
+    // threads: false,
+    // hookTimeout: 20000,
+  },
 })
