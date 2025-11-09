@@ -1,3 +1,15 @@
+## 1.1.1 - 2025-11-09
+
+### What’s Changed (v1.1.1)
+
+#### Fixes
+
+- Restore production layout/animation: ensure inline SFC styles are bundled so items no longer stack at `(0,0)` and transitions render correctly.
+- Align `<TransitionGroup name="vsg">` class names with CSS selectors to avoid mismatches in prod builds.
+- Guard against missing container element during early mounts to prevent skipped `transform` writes.
+- Ensure `reflow()` is exposed from the component instance in build output.
+- Correct `exports`/`types` paths to keep TS and bundlers happy in consuming apps.
+
 ## 1.1.0 - 2025-11-09
 
 ### What’s Changed
