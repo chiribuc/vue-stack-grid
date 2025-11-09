@@ -1,3 +1,19 @@
+## 1.0.10 - 2025-08-28
+
+### What's Changed
+
+* Update vue-stack-grid.d.ts by @mdxiaohu in https://github.com/chiribuc/vue-stack-grid/pull/4
+
+### New Contributors
+
+* @mdxiaohu made their first contribution in https://github.com/chiribuc/vue-stack-grid/pull/4
+
+**Full Changelog**: https://github.com/chiribuc/vue-stack-grid/compare/1.0.9...1.0.10
+
+## 1.0.9 - 2024-12-09
+
+**Full Changelog**: https://github.com/chiribuc/vue-stack-grid/compare/1.0.8...1.0.9
+
 ## 1.0.8 - 2024-12-09
 
 **Full Changelog**: https://github.com/chiribuc/vue-stack-grid/compare/1.0.7...1.0.8
