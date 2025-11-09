@@ -15,7 +15,8 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/vue-stack-grid.js",
       "require": "./dist/vue-stack-grid.umd.cjs"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "scripts": {
     "dev": "vite",
@@ -36,6 +37,7 @@
     "happy-dom": "^20.0.10",
     "typescript": "^5.9.3",
     "vite": "7.1.11",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.0.8",
     "vue-tsc": "^3.1.3"

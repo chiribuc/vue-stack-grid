@@ -6,6 +6,9 @@
       '--vsg-duration': `${opts.duration}ms`,
       '--vsg-easing': opts.easing,
       '--vsg-stagger': `${opts.stagger}ms`,
+      display: 'block',
+      position: 'relative',
+      width: '100%',
     }"
     class="stack-grid-container"
     name="vsg"
@@ -18,29 +21,28 @@
       v-for="(item, key) in items"
       :key="key"
       class="stack-item"
+      :style="{ position: 'absolute', top: '0', left: '0' }"
     >
       <div class="stack-inner">
-        <slot name="item" v-bind="{ item, key }"/>
+        <slot name="item" v-bind="{ item, key }" />
       </div>
     </div>
   </TransitionGroup>
 </template>
 
 <script lang="ts" setup>
-import {computed, nextTick, onMounted, onUnmounted, ref, watch} from "vue"
-import type {Column, ReflowData, StackGridProps, TransitionConfig, TransitionPreset, TransitionProp} from "../types"
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue"
+import type { Column, ReflowData, StackGridProps, TransitionConfig, TransitionPreset, TransitionProp } from "../types"
 
 const props = withDefaults(defineProps<StackGridProps>(), {
   items: () => [],
   gutterWidth: 0,
   gutterHeight: 0,
-  // @ts-ignore - transition is declared in ../types
+  // @ts-ignore
   transition: "scale",
 })
 
-const emits = defineEmits<{
-  (e: "updated:reflow", payload: ReflowData): void
-}>()
+const emits = defineEmits<{ (e: "updated:reflow", payload: ReflowData): void }>()
 
 defineExpose<{ reflow: () => void }>({ reflow })
 
@@ -58,15 +60,13 @@ const defaultConfig: TransitionConfig = {
 
 const opts = computed<TransitionConfig>(() => {
   const t = (props as unknown as { transition?: TransitionProp }).transition
-  if (t === false) {
-    return {...defaultConfig, preset: "none", duration: 0, stagger: 0, animateInitial: false}
-  }
-  if (t === true || t == null) return {...defaultConfig}
+  if (t === false) return { ...defaultConfig, preset: "none", duration: 0, stagger: 0, animateInitial: false }
+  if (t === true || t == null) return { ...defaultConfig }
   if (typeof t === "string") {
     const allowed: TransitionPreset[] = ["none", "fade", "scale", "slide-up", "slide-fade"]
-    return {...defaultConfig, preset: allowed.includes(t as TransitionPreset) ? (t as TransitionPreset) : "scale"}
+    return { ...defaultConfig, preset: allowed.includes(t as TransitionPreset) ? (t as TransitionPreset) : "scale" }
   }
-  return {...defaultConfig, ...(t as Partial<TransitionConfig>)}
+  return { ...defaultConfig, ...(t as Partial<TransitionConfig>) }
 })
 
 const isDisabled = computed(() => opts.value.preset === "none" || opts.value.duration === 0)
@@ -91,7 +91,7 @@ function calculateColumnWidth(containerWidth: number, columnCount: number, gutte
 }
 
 function generateBaseColumns(columnCount: number, columnWidth: number, gutterWidth: number): Column[] {
-  return Array.from({length: columnCount}, (_, i) => ({
+  return Array.from({ length: columnCount }, (_, i) => ({
     x: i * (columnWidth + gutterWidth),
     h: 0,
   }))
@@ -101,7 +101,7 @@ function updateColumnData(): ReflowData {
   const containerWidth = getContainerWidth()
   const columnCount = calculateColumnCount(containerWidth, props.columnMinWidth, props.gutterWidth!)
   const columnWidth = calculateColumnWidth(containerWidth, columnCount, props.gutterWidth!)
-  return {containerWidth, columnCount, columnWidth}
+  return { containerWidth, columnCount, columnWidth }
 }
 
 function update(): void {
@@ -109,10 +109,10 @@ function update(): void {
 }
 
 function reflow(): void {
-  const {containerWidth, columnCount, columnWidth} = updateColumnData()
+  const { containerWidth, columnCount, columnWidth } = updateColumnData()
   let cols = generateBaseColumns(columnCount, columnWidth, props.gutterWidth!)
 
-  emits("updated:reflow", {containerWidth, columnCount, columnWidth})
+  emits("updated:reflow", { containerWidth, columnCount, columnWidth })
 
   const root = getContainerEl()
   if (!root) {
@@ -163,9 +163,7 @@ function arrangeItems(children: HTMLElement[], cols: Column[], columnWidth: numb
 function updateContainerHeight(cols: Column[]): void {
   const containerHeight = cols.reduce((max, col) => Math.max(max, col.h), 0)
   const el = getContainerEl()
-  if (el) {
-    el.style.height = `${containerHeight}px`
-  }
+  if (el) el.style.height = `${containerHeight}px`
 }
 
 function onEnter(el: Element) {
@@ -189,7 +187,7 @@ function onAfterLeave() {
   reflow()
 }
 
-watch(() => props.items, () => update(), {deep: true})
+watch(() => props.items, () => update(), { deep: true })
 
 onMounted(() => {
   if (typeof ResizeObserver !== "undefined") {
@@ -213,15 +211,10 @@ onUnmounted(() => {
 
 <style scoped>
 .stack-grid-container {
-  position: relative;
-  width: 100%;
   transition: height var(--vsg-duration) var(--vsg-easing);
 }
 
 .stack-item {
-  position: absolute;
-  top: 0;
-  left: 0;
   will-change: transform, width;
   transition-property: transform, width;
   transition-duration: var(--vsg-duration);
@@ -232,67 +225,43 @@ onUnmounted(() => {
 .stack-inner {
   width: 100%;
   height: 100%;
-  transition: opacity var(--vsg-duration) var(--vsg-easing),
-  transform var(--vsg-duration) var(--vsg-easing);
+  transition:
+    opacity var(--vsg-duration) var(--vsg-easing),
+    transform var(--vsg-duration) var(--vsg-easing);
 }
 
-/* disable outer transform animation during enter so presets differ */
 .vsg-enter-active.stack-item,
 .vsg-enter-from.stack-item {
   transition: none !important;
 }
 
-/* no animations when disabled */
 .stack-grid-container:not(.vsg-anim),
 .stack-grid-container:not(.vsg-anim) .stack-item,
 .stack-grid-container:not(.vsg-anim) .stack-inner {
   transition: none !important;
 }
 
-/* base enter/leave for inner */
 .vsg-enter-from .stack-inner {
   opacity: 0;
 }
-
 .vsg-leave-to .stack-inner {
   opacity: 0;
 }
 
-/* presets */
-.vsg--none .stack-inner {
-  transition: none;
-}
-
+.vsg--none .stack-inner { transition: none; }
 .vsg--none.vsg-enter-from .stack-inner,
-.vsg--none.vsg-leave-to .stack-inner {
-  opacity: 1;
-  transform: none;
-}
+.vsg--none.vsg-leave-to .stack-inner { opacity: 1; transform: none; }
 
-.vsg--fade .stack-inner {
-}
+.vsg--scale .vsg-enter-from .stack-inner { transform: scale(0.96); }
+.vsg--scale .vsg-leave-to .stack-inner { transform: scale(0.96); }
 
-.vsg--scale .vsg-enter-from .stack-inner {
-  transform: scale(0.96);
-}
-
-.vsg--scale .vsg-leave-to .stack-inner {
-  transform: scale(0.96);
-}
-
-.vsg--slide-up .vsg-enter-from .stack-inner {
-  transform: translateY(14px);
-}
-
-.vsg--slide-up .vsg-leave-to .stack-inner {
-  transform: translateY(-10px);
-}
+.vsg--slide-up .vsg-enter-from .stack-inner { transform: translateY(14px); }
+.vsg--slide-up .vsg-leave-to .stack-inner { transform: translateY(-10px); }
 
 .vsg--slide-fade .vsg-enter-from .stack-inner {
   opacity: 0;
   transform: translateY(18px) scale(0.985);
 }
-
 .vsg--slide-fade .vsg-leave-to .stack-inner {
   opacity: 0;
   transform: translateY(-12px) scale(0.985);
