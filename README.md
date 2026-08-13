@@ -1,6 +1,6 @@
 # StackGrid for Vue 3
 
-StackGrid is a Vue 3 component designed to make it easy and efficient to create dynamic, responsive grid layouts. It automatically arranges items based on the available container width, ensuring a visually appealing presentation on all devices.
+StackGrid is a Vue 3 component for fast, dynamic **masonry/stack** layouts. It automatically arranges items based on the container width and now supports **buttery-smooth transitions** for add/remove/reflow events.
 
 ![twitter-card](https://github.com/chiribuc/chiribuc/assets/46414598/2b34aca7-678a-495a-b9c3-40ecf43d81ae)
 
@@ -9,116 +9,200 @@ See the [demo](https://vue-stack-grid.crobert.dev/) for a live example of StackG
 
 ## Features
 
-- **Responsive**: Automatically adjusts to the container's width.
-- **Customizable**: Offers props for minimum column width, gutter width, and gutter height.
-- **Slot Support**: Utilize slots to customize the content of each grid item.
-- **Vue 3 Composition API**: Built with Vue 3's Composition API for better performance and readability.
+- **Responsive**: Automatically adapts to container width.
+- **Transitions (new)**: Simple `transition` prop with presets (`fade`, `scale`, `slide-up`, `slide-fade`) or fully disabled.
+- **Customizable**: Control minimum column width and horizontal/vertical gutters.
+- **Slot Support**: Use the `item` slot to render anything.
+- **Vue 3 Composition API**: Lightweight, GPU-friendly transforms.
+- **TypeScript-ready**: Public types live in `src/types/index.ts` and ship with the package.
 
 ## Installation
 
-To install StackGrid, use npm or yarn:
-
-```
+```bash
 npm i @crob/vue-stack-grid
-```
-
-or
-
-```
+# or
 yarn add @crob/vue-stack-grid
 ```
 
 ## Usage
 
-Import StackGrid into your component and use it in your template. Provide it with the necessary props like `items`, `columnMinWidth`, `gutterWidth`, and `gutterHeight`. Use the slot `item` to customize how each item in the grid should be displayed.
+Basic example:
 
 ```vue
 <template>
-  <StackGrid :items="items" :column-min-width="100" :gutter-width="10" :gutter-height="10">
+  <StackGrid
+    :items="items"
+    :column-min-width="160"
+    :gutter-width="12"
+    :gutter-height="12"
+  >
     <template #item="{ item }">
-      <div>{{ item }}</div>
+      <div class="card">{{ item.title }}</div>
     </template>
   </StackGrid>
 </template>
 
 <script setup>
-import StackGrid from '@crob/vue-stack-grid';
-const items = [...]; // your items here
+import StackGrid from '@crob/vue-stack-grid'
+const items = [
+  { id: 1, title: 'Alpha' },
+  { id: 2, title: 'Beta' },
+  { id: 3, title: 'Gamma' },
+]
 </script>
+```
+
+### With transitions
+
+Pick a preset (simple):
+
+```vue
+<StackGrid
+  :items="items"
+  :column-min-width="280"
+  :gutter-width="16"
+  :gutter-height="16"
+  transition="slide-fade"
+>
+  <template #item="{ item }">
+    <Card :data="item" />
+  </template>
+</StackGrid>
+```
+
+Disable all animations:
+
+```vue
+<StackGrid
+  :items="items"
+  :column-min-width="280"
+  transition="none"
+/>
+```
+
+Fine‑tune via object:
+
+```vue
+<StackGrid
+  :items="items"
+  :column-min-width="300"
+  :gutter-width="12"
+  :gutter-height="12"
+  :transition="{
+    preset: 'scale',
+    duration: 350,
+    easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+    stagger: 12,
+    animateInitial: true
+  }"
+/>
 ```
 
 ## Props
 
-- **items** (required): An array of items to display in the grid.
-- **columnMinWidth** (required): The minimum width of each column in pixels.
-- **gutterWidth**: The horizontal gap between columns in pixels. Default is `0`.
-- **gutterHeight**: The vertical gap between rows in pixels. Default is `0`.
+| Prop              | Type                                                      | Required | Default | Description |
+|-------------------|-----------------------------------------------------------|:--------:|:-------:|-------------|
+| `items`           | `any[]`                                                   |   ✅     |   —     | Items to render. Prefer stable keys (e.g. `item.id`). |
+| `columnMinWidth`  | `number`                                                  |   ✅     |   —     | Minimum width for a column (in px). |
+| `gutterWidth`     | `number`                                                  |         |   `0`   | Horizontal gap between columns (in px). |
+| `gutterHeight`    | `number`                                                  |         |   `0`   | Vertical gap between rows (in px). |
+| `transition`      | `false` \| `'none' \| 'fade' \| 'scale' \| 'slide-up' \| 'slide-fade'` \| `{ preset?, duration?, easing?, stagger?, animateInitial? }` |         | `'scale'` | Controls enter/leave/move animations. `false` behaves like `'none'` with duration `0`. |
+
+### Transition details
+
+- **Presets**: `'fade'`, `'scale'`, `'slide-up'`, `'slide-fade'`, or `'none'` to disable effects (movement still occurs without easing if duration > 0).
+- **Object form** (partial allowed):
+  - `preset`: one of presets above
+  - `duration`: number in ms (default `300`)
+  - `easing`: CSS timing function (default `cubic-bezier(0.22, 1, 0.36, 1)`)
+  - `stagger`: number in ms per item (default `0`)
+  - `animateInitial`: animate first render (default `false`)
 
 ## Events
 
 ### `updated:reflow`
 
-The `updated:reflow` event is emitted after the grid layout has been recalculated. This can occur in response to various triggers, such as a window resize or manual invocation of the reflow process. This event provides a way for parent components to react to changes in the grid layout, enabling additional custom behavior or UI updates based on the new layout state.
+Emitted after each layout pass. Payload type is `ReflowData`:
 
-#### Listening to the Event
-
-To listen to the `updated:reflow` event, attach an event listener to the `<StackGrid>` component in your template. You can then define a method within your component to handle the event.
-
-```vue
-<template>
-  <StackGrid @updated:reflow="handleReflowEvent"></StackGrid>
-</template>
-
-<script setup>
-import { defineComponent } from 'vue';
-import StackGrid from '@crob/vue-stack-grid';
-
-const handleReflowEvent = () => {
-  console.log('Grid layout was updated.');
-  // Additional logic to handle the grid update...
-};
-</script>
+```ts
+interface ReflowData {
+  containerWidth: number
+  columnCount: number
+  columnWidth: number
+}
 ```
 
-
-## Methods
-
-### `reflow`
-
-Triggers a reflow of the grid layout. This can be useful if you've dynamically changed the items or their sizes and need to re-calculate the layout of the grid.  
-To use this method, you'll need to get a reference to the StackGrid component instance in your parent component. Here's an example of how to do this with Vue 3's Composition API:
+Listening example:
 
 ```vue
 <template>
-  <StackGrid ref="stackGridRef" :items="items" :columnMinWidth="100" :gutterWidth="10" :gutterHeight="10">
-    <template #item="{ item }">
-      <div>{{ item }}</div>
-    </template>
-  </StackGrid>
-  <button @click="reflowGrid">Reflow Grid</button>
+  <StackGrid
+    :items="items"
+    :column-min-width="220"
+    @updated:reflow="onReflow"
+  />
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import StackGrid from '@crob/vue-stack-grid';
-
-const stackGridRef = ref();
-const items = ref([...]); // Your items here
-
-function reflowGrid() {
-  if (stackGridRef.value) {
-    stackGridRef.value.reflow();
-  }
+function onReflow(payload) {
+  console.log('reflow', payload)
 }
 </script>
 ```
 
-This section demonstrates how to access and call the `reflow` method exposed by the StackGrid component.
+## Methods
+
+### `reflow()`
+
+Programmatically trigger a layout recompute:
+
+```vue
+<template>
+  <StackGrid ref="stack" :items="items" :column-min-width="200" />
+  <button @click="stack?.reflow()">Reflow</button>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+const stack = ref()
+</script>
+```
+
+## Types
+
+Types live in `src/types/index.ts` and are exported by the package:
+
+```ts
+export interface Column { x: number; h: number }
+export interface ReflowData { containerWidth: number; columnCount: number; columnWidth: number }
+export interface StackGridProps<Item = any> {
+  items: Item[]
+  columnMinWidth: number
+  gutterWidth?: number
+  gutterHeight?: number
+  transition?: TransitionProp
+}
+export type TransitionPreset = 'none' | 'fade' | 'scale' | 'slide-up' | 'slide-fade'
+export interface TransitionConfig {
+  preset: TransitionPreset
+  duration: number
+  easing: string
+  stagger: number
+  animateInitial: boolean
+}
+export type TransitionProp = boolean | TransitionPreset | Partial<TransitionConfig>
+```
+
+## Tips
+
+- **Keys**: For best movement/exit quality, use stable keys for your items (`:key="item.id"`).
+- **Images**: If your card height depends on images, ensure images have dimensions or call `reflow()` after they load.
+- **SSR/Tests**: The component gracefully falls back to `window.resize` when `ResizeObserver` is unavailable (e.g. JSDOM).
 
 ## Contributing
 
-Contributions are welcome! If you have an idea or suggestion, please feel free to fork the repository, make your changes, and submit a pull request.
+Issues and PRs welcome. If you’re proposing a feature, include a short rationale and, if possible, a tiny reproduction or GIF.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT

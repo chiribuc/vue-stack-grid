@@ -1,3 +1,30 @@
+## 1.1.1 - 2025-11-09
+
+### What’s Changed (v1.1.1)
+
+#### Fixes
+
+- Restore production layout/animation: ensure inline SFC styles are bundled so items no longer stack at `(0,0)` and transitions render correctly.
+- Align `<TransitionGroup name="vsg">` class names with CSS selectors to avoid mismatches in prod builds.
+- Guard against missing container element during early mounts to prevent skipped `transform` writes.
+- Ensure `reflow()` is exposed from the component instance in build output.
+- Correct `exports`/`types` paths to keep TS and bundlers happy in consuming apps.
+
+## 1.1.0 - 2025-11-09
+
+### What’s Changed
+
+- feat: add built-in transition presets (`fade`, `scale`, `slide-up`, `slide-fade`, `none`) via `transition` prop
+- feat: support custom transition config `{ preset, duration, easing, stagger, animateInitial }`
+- feat: expose `reflow()` publicly via `defineExpose({ reflow })`
+- docs: update demo/landing to showcase transition presets & custom tuning
+- fix: ignore leaving nodes during `reflow()` to avoid layout jumps on exit animations
+- fix: ensure resize listener is cleaned up on unmount
+- fix: safer container/children guards to prevent undefined access during tests
+- test: switch to `happy-dom` to avoid `jsdom/parse5` ESM issues
+- test: make resize test deterministic (mock `clientWidth`, force `reflow()`)
+- types: keep all TS types in `src/types/index.ts` and use them in SFC without leaking TS into template
+
 ## 1.0.10 - 2025-08-28
 
 ### What's Changed
